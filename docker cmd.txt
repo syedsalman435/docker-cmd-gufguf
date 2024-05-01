@@ -141,7 +141,7 @@ cd volume2
 touch cont3f3
 exit
 now create one more container and share volume2
-docker run -it --name cont3 --privileged=true --volume-from cont4 ubuntu /bin/bash
+docker run -it --name cont4 --privileged=true --volumes-from cont3 ubuntu /bin/bash
 now you are inside cont4, do ls you can see volume2
 create one file inside volumwe and check in cont3. same file reflect there
 ------/
@@ -181,19 +181,16 @@ apt-get update
 apt-get install apache2 -y
 cd /var/www/html
 echo "hi keep learning" >index.html(> means add that to this file(inde))
-copy ip :80 and search in google
-server apache2 startdocker run -td  --name myjenkins -p 8080:8080 jenkins
+service apache2 restart
+public copy ip :80 and search in google
+server apache2 start
+exit
+docker run -td  --name myjenkins -p 8080:8080 jenkins/jenkins
 this prots are allowed in ec2 also 8080
-ip:8080
+search public ip:8080 in google
 check in gogle search
 diff b/w expose and publish(-p) 
 if you specify neither expose nor -p the server in the contianer will only be accessible from inside the container  itself
 -p means expose to all(public)
 if you expose a port, the serveer in the container is not accessible from outside dockeer, but from inside orther docker containers this is good for inteer-container communication
 if you stop are delete container the ports will un map
-
-
-
-
-
-

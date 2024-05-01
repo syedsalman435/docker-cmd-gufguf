@@ -1,0 +1,199 @@
+#rum this 3 cmd when u create new vm'
+#green color important
+
+
+1.install linux vm in aws.
+2.sudo su
+3.yum update -y
+4.yum install docker -y
+5.which docker(to check it's installed are not)
+6.docker -v  or --version
+7.service docker status (or) docker info
+8.service docker start (or) stop
+9.repeate 7line
+10.docker images
+11.docker ps(process status)only running container
+12.docker ps -a(running and stops containees)
+13.docker run -it ubuntu /bin/bash(install container and create ubuntu image)
+14.cat /etc/os-release (tell whate running inside container)
+15.exit(container will stop and you came out of container)
+16.run 13 line it will create new container
+17.run 11th and 12th & 10th line to check
+18.docker run -it centos /bin/bash
+19.exit and run 10
+20.run 18th & 14
+21.docker pull jenkins & 10th (pull from hub and stored it in locally)
+22.docker search ubuntu(what and all present in hub will show here)
+23.docker run -it --name salman ubuntu /bin/bash(presenting the name of cotainer)
+24.docker start salman & 11th(to start the stop container)
+25.docker attach salman(want to go inside the container to work)
+26.docker stop salman(to stop)
+27.docker rm salman & 12th(to delete conntainer we need to stop first)
+docker rmi jenkins(to remove the image)
+////////////////////////////////////////////////////////////////////////////////////////
+?  ?how to came out of container with out stopping(ctrl p & ctrl q)
+?  how to go inside running conntainer(docker exec -it <name> /bin/bash)
+24.docker run  --name sal -it ubuntu /bin/bash(created base image) & create file touch file
+here the difference is creation of new file campared to base image
+25.docker diff sal(want to see the difference between the base image & change on it)
+c  /root  (c-changes)changes happend at root
+A  /root/.bash-history((A-append or addition)stored changed in history
+c /tmp   --happend in tmp
+A  /tmp/file1 ---added new file1
+D(deeletion)
+26. docker commit sal(name) sal1(name of image) (cretae image of container)
+27.docker run -it --name sal2(container name) sal1(imagename)(create container from this image)her file1 is already present
+28.ls ----  cd temp/  --ls--file1
+29.Dockerfile is basically a test file it contains some set of instruction
+Docker Compnents(all shoud be uppercase)
+FROM  --for base image this cmd must be on top of the dockerfile
+RUN   --To execute cmd, it will create a layer in image
+MAINTAINER  --Author/owner/description
+COPY  --copy file from local system(docker vm) we need to provide source, destination(we can't downlode file from internet or any remote repo)
+ADD  --similar to COPY but, it provide a feature to downlode file from internet, also we extract(unzip) file a docker image side
+EXPOSE  --to expose ports such as port 8080 from tomcat port 80 for nginx etc.
+WORKDIR  --to set working directory for a container
+CMD --execute commands but during container creation
+ENTRYPOINT  --similar to CMD, but has higher priority over CMD,first cmd will be executed by ENTRYPOINT only
+ENV --Environment variable
+30.vi Dockerfile---(create a file named Dockerfile)
+FROM ubuntu
+31.Run echo "hi keep learning" >/tmp/testfile (Add instruction in Dockerfile)
+32.docker build -t myimg .((don't forgot dot))(. means current directory, -t tag)Build dockerfile to create image
+33.docker image  & docker ps -a
+34.docker run -it --name mycon myimg /bin/bash (image to  container creation)
+cat /tmp/testfile  
+35.Add below instruction in docker file --vi Dockerfile
+FROM ubuntu
+WORKDIR /tmp(while entring it go to this folder 
+ENV myname salman
+COPY testfile1 /tmp
+ADD  test.tar.gz /tmp
+came out
+touch testfile1 test
+tar -cvf test.tar test
+ls
+gzip test.tar
+ls
+rm -rf test
+docker build -t newimg .(don't forgot dot)
+docker images
+docker run -it --name newcont newimg /bin/bash
+come directly in tmp& ls
+cat testfile 
+echo $myname
+add instruction in dockerfile from imternet and do all above steps repetedly 
+(here we created file through that we create image by usin image we create conntainer)
+/////////////////////////////volume & mapping
+1.volume is simply a directory inside our container.we have to declre this directory as a volume and than share the volume
+even if you stop the conntainer, still we can access volume. volume will be created in one container
+you can declare directory as a volume only while creating container. you can't create volume from existing container
+you can share one volume across any number of containers
+volume will not be included when you update an image
+you cam map volume in 2 ways 1.container to container  2. host to container
+delete container will not effect or delete the volume
+2.create docket --- vi Dockerfile
+FROM ubuntu
+VOLUME ["/myvolume1"]
+:wq
+3.then create image from this dockrfile
+docker build -t myimage . 
+4.create a container from this image & run
+docker run -it --name cont1 myimage /bin.bash (inside image we have cmd to create volume)
+4.now share volume with another container(c1 to c2)
+docker run -it --name cont2 --privileged=true --volumes-from cont1 ubuntu /bin/bash(share volume while creating cont2)can't share after creation
+5.now after creating cont2, myvolume is visible whatever you do in one volume, can see from orther volume
+touch /myvolume1/samplefile
+docker start container1
+docker attach cont1ls/myvolume1(you can see volume1 here)
+docker attach cont1(go inside the container)
+lab-------------\same as above
+create vm and login with ec2-user
+2.sudo su
+3.yum update -y
+4.yum install docker -y
+service docker status (or) docker info
+8.service docker start 
+touch f1 f2
+ls
+inside file we are creating volume
+vi dockerfile
+FROM ubuntu
+VOLUME ["/myvolume1"]
+:wq
+docker build -t myimage . 
+docker run -it --name cont1 myimage /bin.bash
+ls -----(myvolume1)
+cd myvolume1
+touch f1 f2 f3
+exit
+docker run -it --name cont2 --privileged=true --volumes-from cont1 ubuntu /bin/bash
+ls
+cd myvolume1 (files are visible)
+exit
+docker start cont1
+docker attach cont1(go inside the container)
+change and check--------------\
+now try to create volume by cmd by creating container
+1.docker run -it --name cont3 -v /volume2 ubuntu /bin/bash
+ls
+cd volume2
+touch cont3f3
+exit
+now create one more container and share volume2
+docker run -it --name cont3 --privileged=true --volume-from cont4 ubuntu /bin/bash
+now you are inside cont4, do ls you can see volume2
+create one file inside volumwe and check in cont3. same file reflect there
+------/
+volume(host(ec2)--container)
+verify files in  /home/ec2-user(host-path)  container file(/sal) (:--> means map)
+cd ec2-user/
+ls
+docker run -it --name hostcont -v /home/ec2-user:/sal --privileged=true ubuntu /bin/bash
+cd /sal
+ls  (now you cann see all files of host machine)
+touch f1
+exit
+ls
+now check in ec2 machine, you can see the f1 file
+docker volume ls (show locally created all volume list)
+docker volume create <name>(to create volume)
+docker volume rm <name>(to remove)
+docker volume prune (it remove all unused volume)
+docker volume inspect <volumename>  (details of volume)
+docker container inspect <containername>(details of container)
+------------------/portExpose
+user reach to ec2 machine(here in ec2 we need to map the port--- from port ec2 port(80) to container(80) so user will directly reach to container ad access his website)
+create vm linux
+open ports 80 and 8080
+sudo su
+3.yum update -y
+4.yum install docker -y
+5.which docker(to check it's installed are not)
+6.docker -v  or --version
+7.service docker status (or) docker info
+8.service docker start
+docker run -td --name techser -p 80:80 ubuntu 
+docker ps
+docker port techser(what ever port are map will show)
+docker exec -it tesh /bin/bash  or attach (go inside server)exec will create processer(pid) but attach will go to main pid
+apt-get update
+apt-get install apache2 -y
+cd /var/www/html
+echo "hi keep learning" >index.html(> means add that to this file(inde))
+copy ip :80 and search in google
+server apache2 startdocker run -td  --name myjenkins -p 8080:8080 jenkins
+this prots are allowed in ec2 also 8080
+ip:8080
+check in gogle search
+diff b/w expose and publish(-p) 
+if you specify neither expose nor -p the server in the contianer will only be accessible from inside the container  itself
+-p means expose to all(public)
+if you expose a port, the serveer in the container is not accessible from outside dockeer, but from inside orther docker containers this is good for inteer-container communication
+if you stop are delete container the ports will un map
+
+
+
+
+
+
